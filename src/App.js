@@ -1,10 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 
 function App() {
   const [board, setBoard] = useState(Array(9).fill(null));
   const [player, setPlayer] = useState('X');
   const [winner, setWinner] = useState(null);
+
+  useEffect(() => {
+    if (player === 'O' && winner === null) {
+      const timeout = setTimeout(() => {
+        const newBoard = [...board];
+        const move = getAiMove(newBoard);
+        newBoard[move] = player;
+        setBoard(newBoard);
+        setPlayer('X');
+        checkWinner(newBoard);
+      }, 1000);
+      return () => clearTimeout(timeout);
+    }
+  }, [board, player, winner]);
 
   const handleClick = (index) => {
     if (board[index] === null && winner === null) {
@@ -17,7 +31,8 @@ function App() {
   };
 
   const checkWinner = (board) => {
-    const lines = [      [0, 1, 2],
+    const lines = [
+      [0, 1, 2],
       [3, 4, 5],
       [6, 7, 8],
       [0, 3, 6],
@@ -54,6 +69,15 @@ function App() {
     setBoard(Array(9).fill(null));
     setPlayer('X');
     setWinner(null);
+  };
+
+  const getAiMove = (board) => {
+    const availableSquares = board
+      .map((square, index) => (square === null ? index : null))
+      .filter((square) => square !== null);
+  
+    const randomIndex = Math.floor(Math.random() * availableSquares.length);
+    return availableSquares[randomIndex];
   };
 
   return (
